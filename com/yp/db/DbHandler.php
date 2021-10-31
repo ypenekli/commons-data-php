@@ -21,7 +21,7 @@ class DbHandler
     {
         $this->connection = $connection;
         if ($this->connection === null) {
-            $filename = SITE_ROOT . '../../commons-data/Config.properties';
+            $filename = SITE_ROOT . '../../commons-data-php/Config.properties';
             $this->buildConnection(Configuration::getSubConfig($filename, 'database'));
         }
     }
