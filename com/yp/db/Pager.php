@@ -3,65 +3,61 @@ namespace com\yp\db;
 
 class Pager implements \JsonSerializable
 {
-    private $offset = 0;
-    private $limit = 1500;
-    private $cout = -1;
+    private $pageIndex = 0;
+    private $pageSize = 100;
+    private $length = -1;
     
-    public function __construct(int $offset = 0, int $limit = -1, int $cout=-1)
+    public function __construct(int $pageIndex = 0, int $pageSize = -1, int $length=-1)
     {
-        $this->offset = $offset;
-        $this->limit = $limit;
-        $this->count = $cout;
+        $this->pageIndex = $pageIndex;
+        $this->pageSize = $pageSize;
+        $this->length = $length;
     }    
     
-    public function getOffset()
+    public function getPageIndex()
     {
-        return $this->offset;
+        return $this->pageIndex;
     }
     
-    public function setOffset(int $offset)
+    public function setPageIndex(int $pageIndex)
     {
-        $this->offset = $offset;
+        $this->pageIndex = $pageIndex;
     }
     
-    public function getLimit()
+    public function getPageSize()
     {
-        return $this->limit;
+        return $this->pageSize;
     }
     
-    public function setLimit(int $limit)
+    public function setPageSize(int $pageSize)
     {
-        $this->limit = $limit;
+        $this->pageSize = $pageSize;
     }
     
-    public function getCount()
+    public function getLength()
     {
-        return $this->cout;
+        return $this->length;
     }
     
-    public function setCount(int $cout)
+    public function setLength(int $length)
     {
-        $this->cout = $cout;
+        $this->length = $length;
     }
     
     
     public function jsonSerialize()
     {
         return [
-            'offset' => $this->offset,
-            'limit' => $this->limit,
-            'count' => $this->count
+            'pageIndex' => $this->pageIndex,
+            'pageSize' => $this->pageSize,
+            'length' => $this->length
         ];
     }
     
     public static function fromJson($std_class)
-    {
-        if ($std_class && property_exists($std_class, "offset")) {
-            $that = new Pager();
-            $that->offset = $std_class->offset;
-            $that->limit = $std_class->limit;
-            $that->count = $std_class->count;
-            return $that;
+    {        
+        if ($std_class && property_exists($std_class, "pageIndex")) {            
+            return new Pager($std_class->pageIndex, $std_class->pageSize, $std_class->length);
         }
     }
 

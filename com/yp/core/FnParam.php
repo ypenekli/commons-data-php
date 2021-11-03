@@ -73,7 +73,7 @@ class FnParam implements \JsonSerializable
                 $result = DataEntity::fromJson($std_class);
             } else if (property_exists($std_class, "name")) {
                 $result = FnParam::fromJson($std_class);
-            } else if (property_exists($std_class, "offset")) {
+            } else if (property_exists($std_class, "pageIndex")) {
                 $result = Pager::fromJson($std_class);
             }
         }

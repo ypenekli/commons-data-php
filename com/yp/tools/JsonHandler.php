@@ -92,18 +92,19 @@ class JsonHandler
             } else{
                 JsonHandler::promote($x1);
             }
-        } else {
+        } else {           
             if (property_exists($std_class, "state")){
                 $result = DataEntity::fromJson($std_class);
             }else if (property_exists($std_class, "name")){
                 $result = FnParam::fromJson($std_class);
-            }else if (property_exists($std_class, "offset")){
+            }else if (property_exists($std_class, "pageIndex")){
                 $result = Pager::fromJson($std_class);
             }
         }
 
         return $result;
-    }
+    }    
+    
 
     static function get_class(string $target_class) {
         $pos = strripos($target_class, '\\');

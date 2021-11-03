@@ -44,8 +44,9 @@ class Command
     {
         if ($query != null && $query != "") {
             $this->query = str_replace('~KA~', '.', $query);
-            if ($pager != null && $pager->getLimit() > - 1) {
-                $this->query = sprintf(self::FORMAT_LIMIT, $this->query, $pager->getOffset(), $pager->getLimit());
+            if ($pager != null && $pager->getPageSize() > - 1) {
+                $offset = $pager->getPageIndex() * $pager->getPageSize();
+                $this->query = sprintf(self::FORMAT_LIMIT, $this->query, $offset, $pager->getPageSize());
             }
         }
     }
