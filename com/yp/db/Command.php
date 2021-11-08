@@ -17,6 +17,8 @@ class Command
     const FROM = " FROM ";
 
     const SELECT_FROM = " SELECT * FROM ";
+    
+    const SELECT_COUNT = " SELECT COUNT(*) AS COUNT ";
 
     const UPDATE = " UPDATE ";
 
@@ -44,7 +46,7 @@ class Command
     {
         if ($query != null && $query != "") {
             $this->query = str_replace('~KA~', '.', $query);
-            if ($pager != null && $pager->getPageSize() > - 1) {
+            if ($pager != null && $pager->getLength() > - 1) {
                 $offset = $pager->getPageIndex() * $pager->getPageSize();
                 $this->query = sprintf(self::FORMAT_LIMIT, $this->query, $offset, $pager->getPageSize());
             }
@@ -114,6 +116,17 @@ class Command
     public static function buildQueryCommand(PDO $connection, String $query, array $params, Pager $pager = null)
     {
         $cmd = new Command($query, $params, $pager);
+        if ($cmd->isSuccess()) {
+            $cmd->stmt = $connection->prepare($cmd->query);
+            $cmd->bindParams();
+        }
+        return $cmd;
+    }
+    
+    public static function buildCountQueryCommand(PDO $connection, String $query, array $params)
+    {
+        $query = self::SELECT_COUNT . substr($query, strpos($query, "FROM"));
+        $cmd = new Command($query, $params);
         if ($cmd->isSuccess()) {
             $cmd->stmt = $connection->prepare($cmd->query);
             $cmd->bindParams();

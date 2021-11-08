@@ -49,7 +49,7 @@ class DbHandler
     public function find(string $pFnName, DataEntity $pEntity)
     {
         $result = null;
-        $pEntity->accept();       
+        $pEntity->accept();
         $className = JsonHandler::get_class($pEntity->getClassName());
         $cmd = Command::buildCommand($this->connection, $pEntity);
         if ($cmd->isSuccess()) {
@@ -62,6 +62,28 @@ class DbHandler
             }
         }
         return $result;
+    }
+
+    private function findCount(string $pQueryName, array $pParams)
+    {
+        $className = DataEntity::class;
+        $result = null;
+        $cmd = Command::buildCountQueryCommand($this->connection, $this->queries[$pQueryName], $pParams);
+        if ($cmd->isSuccess()) {
+            try {
+                $result = $cmd->fetch($className);
+                $cmd->close();
+            } catch (PDOException $e) {
+                error_log("findCount!" . $pQueryName . " :" . $cmd->query);
+                error_log("findCount!" . $pQueryName . " :" . $e->getMessage(), 0);
+            }
+        }
+        error_log("findCount 1!" . $pQueryName . " :" . $cmd->query);
+        if ($result != null) {
+            error_log("findCount 2!" . $result->get("count") );
+            return $result->get("count");
+        }
+        return 0;
     }
 
     public function findOne(string $pQueryName, array $pParams)
@@ -96,13 +118,14 @@ class DbHandler
 
     public function findBy(string $pQueryName, array $pParams)
     {
-        $result = null;
+        $result = new Result();
+        $list = null;
         $pager = new Pager();
         $className = DataEntity::class;
         $params = array();
         if (isset($pParams) && is_array($pParams)) {
             $count = count($pParams);
-            if ($count > 1) {               
+            if ($count > 1) {
                 $className = JsonHandler::get_class($pParams[0]->value);
                 $pager = $pParams[1]->value;
             }
@@ -111,13 +134,24 @@ class DbHandler
             }
         }
 
+        if ($pager->getPageSize() > 0 && $pager->getLength() < 0) {
+            $count = $this->findCount($pQueryName, $params);
+            $result->setDataLength($count);
+            $pager->setLength($count);
+        }
+
         $cmd = Command::buildQueryCommand($this->connection, $this->queries[$pQueryName], $params, $pager);
         error_log("query :" . $cmd->query . 0);
         if ($cmd->isSuccess()) {
             try {
-                $result = $cmd->fetchAll($className);
+                $list = $cmd->fetchAll($className);
                 $cmd->close();
+                $result->setSuccess(true);
+                $result->setData($list);
+                $result->setDataLength(count($list));
             } catch (PDOException $e) {
+                $result->setSuccess(false);
+                $result->setMessage("Okuma hatasi");
                 error_log("findBy!" . $pQueryName . " :" . $cmd->query);
                 error_log("findBy!" . $pQueryName . " :" . $e->getMessage(), 0);
             }
@@ -126,7 +160,7 @@ class DbHandler
     }
 
     public function save(string $pFnName, DataEntity $pEntity)
-    {   
+    {
         $result = new Result();
         self::checkAndGeneratePk($pEntity);
         $cmd = Command::buildCommand($this->connection, $pEntity);
@@ -142,7 +176,9 @@ class DbHandler
         if ($result->isSuccess()) {
             $result->setMessage("Kaydetme tamamlandi.");
             $pEntity->accept();
-        }else $result->setMessage("Kaydetme başarısız oldu.");
+        } else {
+            $result->setMessage("Kaydetme başarısız oldu.");
+        }
         $result->setData($pEntity);
         return $result;
     }

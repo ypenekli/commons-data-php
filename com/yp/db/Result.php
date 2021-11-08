@@ -11,6 +11,8 @@ class Result implements \JsonSerializable
     private $data;
 
     private $errorCode;
+    
+    private $dataLength;
 
     public function __construct(bool $pSuccess = false, String $pMessage = "")
     {
@@ -18,6 +20,7 @@ class Result implements \JsonSerializable
         $this->message = $pMessage;
         $this->data = null;
         $this->errorCode = 0;
+        $this->dataLength = 0;
     }
 
     public function isSuccess()
@@ -59,6 +62,16 @@ class Result implements \JsonSerializable
     {
         $this->errorCode = $pErrorCode;
     }
+    
+    public function getDataLength():int
+    {
+        return $this->dataLength;
+    }
+    
+    public function setDataLength(int $pDataLength)
+    {
+        $this->dataLength = $pDataLength;
+    }
 
     public function jsonSerialize()
     {
@@ -66,7 +79,8 @@ class Result implements \JsonSerializable
             'success' => $this->success,
             'message' => $this->message,
             'data' => $this->data,
-            'errorCode' => $this->errorCode
+            'errorCode' => $this->errorCode,
+            'dataLength' => $this->dataLength
         ];
     }
 }

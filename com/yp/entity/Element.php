@@ -67,9 +67,9 @@ class Element implements \JsonSerializable
     {
         if (! empty($std_class) && property_exists($std_class, 'value')) {
             $e = new Element($std_class->value);
-            $e->changed = $std_class->changed != null && $std_class->changed == true;
+            $e->changed = $std_class->changed != null && $std_class->changed;
             $e->typeName = $std_class->typeName;
-            $e->readOnly = $std_class->readOnly != null && $std_class->readOnly == true;
+            $e->readOnly = $std_class->readOnly != null && $std_class->readOnly;
             return $e;
         }
     }
