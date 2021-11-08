@@ -163,7 +163,7 @@ class DbHandler
             }
         }
         
-        if ($pager->getPageSize() > 0 && $pager->getLength() < 0) {
+        if ($pager != null && $pager->getLength() < 0) {
             $count = $this->findCount($pQueryName, $params);
             $result->setDataLength($count);
             $pager->setLength($count);
@@ -177,7 +177,7 @@ class DbHandler
                 $cmd->close();
                 $result->setSuccess(true);
                 $result->setData($list);
-                $result->setDataLength(count($list));
+                //$result->setDataLength(count($list));
             } catch (PDOException $e) {
                 $result->setSuccess(false);
                 $result->setMessage("Okuma hatasi");
