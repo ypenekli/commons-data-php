@@ -118,6 +118,35 @@ class DbHandler
 
     public function findBy(string $pQueryName, array $pParams)
     {
+        $list = null;
+        $pager = new Pager();
+        $className = DataEntity::class;
+        $params = array();
+        if (isset($pParams) && is_array($pParams)) {
+            $count = count($pParams);
+            if ($count > 1) {
+                $className = JsonHandler::get_class($pParams[0]->value);
+                $pager = $pParams[1]->value;
+            }
+            if ($count > 2) {
+                $params = array_slice($pParams, 2);
+            }
+        }
+        $cmd = Command::buildQueryCommand($this->connection, $this->queries[$pQueryName], $params, $pager);        
+        if ($cmd->isSuccess()) {
+            try {
+                $list = $cmd->fetchAll($className);
+                $cmd->close();
+            } catch (PDOException $e) {
+                error_log("findBy!" . $pQueryName . " :" . $cmd->query);
+                error_log("findBy!" . $pQueryName . " :" . $e->getMessage(), 0);
+            }
+        }
+        return $list;
+    }
+    
+    public function findPageBy(string $pQueryName, array $pParams)
+    {
         $result = new Result();
         $list = null;
         $pager = new Pager();
@@ -133,13 +162,13 @@ class DbHandler
                 $params = array_slice($pParams, 2);
             }
         }
-
+        
         if ($pager->getPageSize() > 0 && $pager->getLength() < 0) {
             $count = $this->findCount($pQueryName, $params);
             $result->setDataLength($count);
             $pager->setLength($count);
         }
-
+        
         $cmd = Command::buildQueryCommand($this->connection, $this->queries[$pQueryName], $params, $pager);
         error_log("query :" . $cmd->query . 0);
         if ($cmd->isSuccess()) {
