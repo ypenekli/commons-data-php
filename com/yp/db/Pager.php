@@ -47,6 +47,13 @@ class Pager implements \JsonSerializable
         $this->length = $length;
     }
 
+    public function reset(int $pageSize)
+    {
+        $this->pageSize = $pageSize;
+        $this->pageIndex = 0;
+        $this->length = - 1;
+    }
+
     public function jsonSerialize()
     {
         return [
